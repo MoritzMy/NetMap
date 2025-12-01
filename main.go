@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 )
 
@@ -28,7 +29,7 @@ func main() {
 			ip4Addr, ip4Net, err := net.ParseCIDR(ipNet.String())
 
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 
 			fmt.Println(ip4Addr, ip4Net)
