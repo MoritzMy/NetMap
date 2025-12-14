@@ -4,6 +4,6 @@ import (
 	"net"
 )
 
-func Ping(addr net.IPAddr) string {
-
+func Ping(addr *net.IPNet) string {
+	return ""
 }

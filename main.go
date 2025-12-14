@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-)
 
-var (
-	loopbackIPv4 = net.IPv4(127, 0, 0, 1).To4()
+	ping "github.com/MoritzMy/NetMap/sweep/ping"
 )
 
 func main() {
@@ -23,7 +21,7 @@ func main() {
 			}
 
 			// Avoid the Loopback IP since it's not relevant for scan and any non IPv4 IPs
-			if ipNet.Contains(loopbackIPv4) || ipNet.IP.To4() == nil {
+			if ipNet.IP.IsLoopback() || ipNet.IP.To4() == nil {
 				continue
 			}
 			ip4Addr, ip4Net, err := net.ParseCIDR(ipNet.String())
@@ -33,6 +31,9 @@ func main() {
 			}
 
 			fmt.Println(ip4Addr, ip4Net)
+
+			ping.Ping(ip4Net)
+
 		}
 	}
 }
