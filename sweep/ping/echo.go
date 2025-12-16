@@ -12,36 +12,64 @@ const (
 	maxPayload          = 56
 )
 
+type Marshaler interface {
+	Marshal() ([]byte, error)
+}
+
+type ICMPPacket struct {
+	MessageType uint8
+	Code        uint8
+	Payload        []byte
+
+}
+
 type EchoRequest struct {
-	messageType    uint8
-	code           uint8
-	checksum       uint16
-	identifier     uint16
-	sequenceNumber uint16
-	payload        []byte
+	ICMPPacket
+	Identifier     uint16
+	SequenceNumber uint16
 }
 
 func CreateEchoRequest(identifier uint16, sequenceNumber uint16, payload []byte) EchoRequest {
 	return EchoRequest{
-		messageType:    echoType,
-		code:           echoCode,
-		identifier:     identifier,
-		sequenceNumber: sequenceNumber,
-		payload:        payload,
+		ICMPPacket: ICMPPacket{
+			MessageType: echoType,
+			Code:        echoCode,
+			Payload:     payload,
+
+		},
+		Identifier:     identifier,
+		SequenceNumber: sequenceNumber,
 	}
 }
 
-func Marshal(request EchoRequest) ([]byte, error) {
-	if len(request.payload) > maxPayload {
-		return nil, fmt.Errorf("marshal icmp request: payload size %d exceeds limit of %d Bytes", len(request.payload), maxPayload)
+func (packet ICMPPacket) Marshal() ([]byte, error) {
+	if len(packet.Payload) > maxPayload {
+		return nil, fmt.Errorf("payload too large")
+	}
+	
+	b:= make([]byte, 0, 4 + len(packet.Payload))
+	b = append(b, packet.MessageType, packet.Code)
+	b = binary.BigEndian.AppendUint16(b, checksumPlaceholder)
+	b = append(b, packet.Payload...)
+	
+	cs := computeChecksum(b)
+
+	binary.BigEndian.PutUint16(b[2:4], cs)
+
+	return b, nil
+}
+
+func (request EchoRequest) Marshal() ([]byte, error) {
+	if len(request.Payload) > maxPayload {
+		return nil, fmt.Errorf("marshal icmp request: payload size %d exceeds limit of %d Bytes", len(request.Payload), maxPayload)
 	}
 
-	b := make([]byte, 0, 8+len(request.payload))
-	b = append(b, request.messageType, request.code)
+	b := make([]byte, 0, 8+len(request.Payload))
+	b = append(b, request.MessageType, request.Code)
 	b = binary.BigEndian.AppendUint16(b, checksumPlaceholder)
-	b = binary.BigEndian.AppendUint16(b, request.identifier)
-	b = binary.BigEndian.AppendUint16(b, request.sequenceNumber)
-	b = append(b, request.payload...)
+	b = binary.BigEndian.AppendUint16(b, request.Identifier)
+	b = binary.BigEndian.AppendUint16(b, request.SequenceNumber)
+	b = append(b, request.Payload...)
 
 	cs := computeChecksum(b)
 
