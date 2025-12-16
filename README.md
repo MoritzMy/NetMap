@@ -2,8 +2,6 @@
 
 NetMap is a small, educational network discovery tool that builds a network map for each available network interface by scanning the local network. It combines ARP scanning and ICMP ping sweeps (with a custom, minimal ICMP implementation) to detect live hosts and collect basic information about them. NetMap is intended as a learning project for people who want to understand raw sockets, packet construction, and low-level network I/O.
 
-- Repository: [MoritzMy/NetMap](https://github.com/MoritzMy/NetMap)
-
 Table of contents
 - About
 - Features
@@ -20,8 +18,6 @@ Table of contents
 ## About
 NetMap is not meant to replace production-grade network scanners. Instead, it is focused on education: showing how ARP and ICMP can be implemented and used to discover hosts on a LAN using raw packet handling in Go.
 
----
-
 ## Features
 - Per-interface network mapping (scans each available interface)
 - ARP-based host discovery
@@ -34,8 +30,6 @@ NetMap is not meant to replace production-grade network scanners. Instead, it is
 - Network scanning can be disruptive; run during maintenance windows or on isolated lab networks whenever possible.
 - The author and contributors are not responsible for misuse.
 
-
----
 ## Requirements
 - Go compiler (Go 1.16+ recommended)
 - Root / elevated privileges are required to open raw sockets and send crafted packets on most OSes (Linux, macOS may require sudo). Running as non-root will typically fail when trying to create raw sockets or perform ARP/ICMP operations.
@@ -86,7 +80,7 @@ Note: The exact flags and options available in the binary can be seen with the `
 - Platform differences: raw socket behavior and available features differ across operating systems — testing has typically been done on Unix-like systems; behavior on Windows is not guaranteed.
 - Not a hardened scanner: NetMap is built for experimentation and education rather than performance, stealth, or resilience against active defenses.
 
-Security considerations
+## Security considerations
 - Sending ARP requests and ping sweeps can be noisy; avoid running this on production or sensitive networks without permission.
 - Do not run NetMap on networks where active scanning is prohibited by policy.
 
