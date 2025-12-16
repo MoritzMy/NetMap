@@ -17,8 +17,6 @@ Table of contents
 - License
 - Acknowledgements
 
----
-
 ## About
 NetMap is not meant to replace production-grade network scanners. Instead, it is focused on education: showing how ARP and ICMP can be implemented and used to discover hosts on a LAN using raw packet handling in Go.
 
@@ -30,8 +28,6 @@ NetMap is not meant to replace production-grade network scanners. Instead, it is
 - ICMP ping sweeps using a custom ICMP implementation (packet construction and parsing done manually)
 - Hands-on, low-level packet handling suitable for learning and experimentation
 - Minimal external dependencies (primarily Go standard library)
-
----
 
 ## Safety & Legal
 - Use this tool only on networks you own or on which you have explicit permission to perform scanning.
@@ -45,8 +41,6 @@ NetMap is not meant to replace production-grade network scanners. Instead, it is
 - Root / elevated privileges are required to open raw sockets and send crafted packets on most OSes (Linux, macOS may require sudo). Running as non-root will typically fail when trying to create raw sockets or perform ARP/ICMP operations.
 - A machine with at least one network interface connected to the network you want to scan.
 
----
-
 ## Quick start (build and run)
 1. Clone the repository:
    git clone https://github.com/MoritzMy/NetMap.git
@@ -59,7 +53,6 @@ NetMap is not meant to replace production-grade network scanners. Instead, it is
    sudo ./netmap
    sudo ./netmap --help
 
----
 
 ## Typical usage examples
 - Scan all available interfaces (default behavior):
@@ -73,7 +66,6 @@ NetMap is not meant to replace production-grade network scanners. Instead, it is
 
 Note: The exact flags and options available in the binary can be seen with the `--help` flag. Example flags commonly provided by network tools include interface selection, timeouts, concurrency limits, and output formatting; check the binary for supported flags.
 
----
 
 ## How it works (high level)
 - Interface discovery: NetMap enumerates available network interfaces and determines their network addresses and masks.
@@ -86,7 +78,6 @@ Note: The exact flags and options available in the binary can be seen with the `
 - Results aggregation:
   - For each interface the tool produces a map of discovered hosts (IP, MAC where available, and which mechanism discovered them).
 
----
 
 ## Limitations
 - Elevated privileges required: raw sockets and ARP operations need root permissions.
@@ -99,7 +90,6 @@ Security considerations
 - Sending ARP requests and ping sweeps can be noisy; avoid running this on production or sensitive networks without permission.
 - Do not run NetMap on networks where active scanning is prohibited by policy.
 
----
 
 ## Contributing
 Contributions, fixes, and improvements are welcome. Suggested ways to help:
@@ -113,24 +103,20 @@ When contributing:
 - Follow idiomatic Go style and add tests for new functionality where possible.
 - Keep changes focused and well-documented.
 
----
 
 ## License
 NetMap is provided for educational purposes. Check the repository for a LICENSE file for full license terms.
 
----
 
 ## Acknowledgements
 - Built to explore raw sockets, ICMP, and ARP in Go.
 - The project uses Go's standard library; packet checksum and binary handling uses packages such as `encoding/binary`.
 
----
 
 ## Contact / Author
 - Repository owner: MoritzMy
 - File an issue on GitHub for bugs, feature requests, or questions: https://github.com/MoritzMy/NetMap/issues
 
----
 
 ## Disclaimer
 This tool is intended for authorized network analysis and education only. Do not use it on networks you do not own or have explicit permission to scan. The author is not responsible for misuse or any consequences arising from unauthorized use.
