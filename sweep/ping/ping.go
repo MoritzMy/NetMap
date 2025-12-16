@@ -61,7 +61,6 @@ func Ping(addr *net.IPNet) *icmp.EchoICMPPacket {
 
 	ipHeaderSize := NewIpv4VersionIHL(cr[0]).Size()
 
-	// TODO, replace MagicNumberTM with the IHL from the IPHeader
 	icmp.Unmarshal(cr[ipHeaderSize:], &u)
 	fmt.Println(u)
 

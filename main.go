@@ -18,7 +18,7 @@ func main() {
 			// TODO: Currently pings self, need to get the network range
 
 			// TODO: Fix Up ping.ValidateIP
-			ping.ValidateIP(addr.(*net.IPNet))
+			ping.ValidIpsInNetwork(addr.(*net.IPNet))
 			ipNet, ok := addr.(*net.IPNet)
 
 			if !ok {

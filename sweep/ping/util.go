@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-func ValidateIP(addr *net.IPNet) bool {
+func ValidIpsInNetwork(addr *net.IPNet) bool {
 	ip := addr.IP
 	subnet, size := addr.Mask.Size()
 
@@ -15,7 +15,9 @@ func ValidateIP(addr *net.IPNet) bool {
 		return false
 	}
 
-	fmt.Println(bytes)
+	ipv4Bytes := bytes[len(bytes)-5:]
+
+	fmt.Println(ipv4Bytes)
 
 	fmt.Println(ip, subnet, size)
 
