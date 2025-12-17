@@ -1,7 +1,6 @@
 package icmp_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/MoritzMy/NetMap/sweep/ping/icmp"
@@ -21,5 +20,4 @@ func TestMarshal(t *testing.T) {
 		panic(err)
 	}
 
-	fmt.Println(packet, "\n", u)
 }

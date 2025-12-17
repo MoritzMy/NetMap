@@ -12,7 +12,7 @@ const (
 	echoReplyType = 0
 )
 
-func Ping(addr net.IP) *icmp.EchoICMPPacket {
+func Ping(addr net.IP) *IPPacket {
 	var identifier uint16 = 0
 	var sequenceNumber uint16 = 0
 
@@ -54,16 +54,10 @@ func Ping(addr net.IP) *icmp.EchoICMPPacket {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Println(fmt.Sprintf("Recieved %d Bits from: %s", read, addr.String()))
 
-	var u icmp.EchoICMPPacket
+	packet := NewIPPacket(cr)
 
-	ipHeaderSize := NewIpv4VersionIHL(cr[0]).Size()
-
-	icmp.Unmarshal(cr[ipHeaderSize:], &u)
-	fmt.Println(u)
-
-	return &u
+	return packet
 
 }

@@ -5,10 +5,10 @@ import (
 	"net"
 
 	ping "github.com/MoritzMy/NetMap/sweep/ping"
+	"github.com/MoritzMy/NetMap/sweep/ping/icmp"
 )
 
 func main() {
-
 	ifaces, _ := net.Interfaces()
 
 	for _, iface := range ifaces {
@@ -32,7 +32,11 @@ func main() {
 
 			res := ping.Ping(ipNet.IP)
 
-			fmt.Println(res)
+			var icmpResponse icmp.EchoICMPPacket
+
+			icmp.Unmarshal(res.Data, &icmpResponse)
+
+			fmt.Println(icmpResponse, res.String())
 		}
 	}
 }
