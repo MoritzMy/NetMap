@@ -2,19 +2,16 @@ package ping
 
 import (
 	"encoding/binary"
-	"fmt"
 	"net"
 )
 
 func ValidIpsInNetwork(addr *net.IPNet) []net.IP {
 	var hosts []net.IP
 
-	addr.IP.Mask(addr.Mask)
+	baseAddr := addr.IP.Mask(addr.Mask)
 
 	ip := addr.IP
 	subnet, size := addr.Mask.Size()
-
-	bytes := []byte(ip)
 
 	ip4 := ip.To4()
 
@@ -22,21 +19,17 @@ func ValidIpsInNetwork(addr *net.IPNet) []net.IP {
 		return nil
 	}
 
-	ipv4Bytes := bytes[len(bytes)-4:]
-
-	fmt.Println(ipv4Bytes)
-
-	fmt.Println(ip, subnet, size)
+	currAddr := baseAddr
 
 	for i := 0; i < 2^(size-subnet); i++ {
-
+		IncrementIP(currAddr)
+		if isNetworkIP(ip, subnet) || isBroadcastIP(ip, subnet) {
+			continue
+		}
+		hosts = append(hosts, ip)
 	}
 
-	if isNetworkIP(ip, subnet) || isBroadcastIP(ip, subnet) {
-
-	}
-
-	return nil
+	return hosts
 }
 
 func IncrementIP(ip net.IP) {
