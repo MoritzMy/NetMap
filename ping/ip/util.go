@@ -1,4 +1,4 @@
-package ping
+package ip
 
 import (
 	"encoding/binary"
