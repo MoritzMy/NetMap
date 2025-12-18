@@ -15,8 +15,6 @@ Rather than relying on existing high-level libraries, NetMap focuses on understa
 - How TTL-based probing reveals routing paths
 - How hop-by-hop paths can be aggregated into a graph representation
 
----
-
 ## Project Status
 
 **WIP**
@@ -24,7 +22,6 @@ Rather than relying on existing high-level libraries, NetMap focuses on understa
 NetMap is under active development.  
 Features, APIs, and behavior may change as the project evolves.
 
----
 
 ## Features
 
@@ -35,7 +32,6 @@ Features, APIs, and behavior may change as the project evolves.
 - Aggregation of routes into a network graph
 - Lightweight and dependency-minimal design
 
----
 
 ## How It Works (High-Level)
 
@@ -53,8 +49,6 @@ Features, APIs, and behavior may change as the project evolves.
     - Nodes represent IP addresses
     - Edges represent observed hop-to-hop connections
 
----
-
 ## Limitations
 
 NetMap infers topology based on active probing and therefore has inherent limitations:
@@ -66,7 +60,6 @@ NetMap infers topology based on active probing and therefore has inherent limita
 
 As a result, the generated topology represents a **best-effort approximation**, not a definitive or complete network map.
 
----
 
 ## Intended Use
 
@@ -75,11 +68,8 @@ As a result, the generated topology represents a **best-effort approximation**, 
 - Exploring network measurement techniques
 - Educational demos and lab environments
 
----
 
 ## Ethical & Legal Notice
 
 Only run NetMap on networks you **own or are explicitly authorized to test**.  
 Active network probing may be considered intrusive or malicious in some environments.
-
----
