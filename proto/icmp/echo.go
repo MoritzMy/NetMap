@@ -33,10 +33,9 @@ func (req *EchoICMPPacket) SetHeaders(header ICMPHeader) {
 	req.ICMPHeader = header
 }
 
-func (pkg *EchoICMPPacket) Equal(other_pkg EchoICMPPacket) bool {
+func (pkg EchoICMPPacket) Equal(other_pkg EchoICMPPacket) bool {
 	return pkg.Type == other_pkg.Type &&
 		pkg.Code == other_pkg.Code &&
-		pkg.Checksum == other_pkg.Checksum &&
 		pkg.Identifier == other_pkg.Identifier &&
 		pkg.SequenceNumber == other_pkg.SequenceNumber &&
 		bytes.Equal(pkg.Payload, other_pkg.Payload)
@@ -79,4 +78,10 @@ func (packet *EchoICMPPacket) Unmarshal(data []byte) error {
 	packet.SequenceNumber = binary.BigEndian.Uint16(data[2:4])
 	packet.Payload = data[4:]
 	return nil
+}
+
+func (p EchoICMPPacket) Clone() EchoICMPPacket {
+	c := p
+	c.Payload = append([]byte(nil), p.Payload...)
+	return c
 }
