@@ -7,6 +7,10 @@ import (
 	"github.com/MoritzMy/NetMap/proto/ip"
 )
 
+// NOTE: Time Exceeded was implemented to build a custom traceroute
+// Unfortunately, even L3 Switches don't decrement the TTL, therefore traceroute is semi useless in
+// most local subnets
+
 type TimeExceededPacket struct {
 	ICMPHeader
 	Unused uint32
@@ -29,7 +33,8 @@ func (packet *TimeExceededPacket) Unmarshal(b []byte) error {
 }
 
 func (packet TimeExceededPacket) Marshal() ([]byte, error) {
-	return nil, nil
+	// TODO: Implement me
+	panic("not implemented")
 }
 
 func (packet *TimeExceededPacket) GetHeaders() *ICMPHeader {
