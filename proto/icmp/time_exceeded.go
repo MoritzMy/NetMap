@@ -4,12 +4,13 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	ip2 "github.com/MoritzMy/NetMap/proto/ip"
+	"github.com/MoritzMy/NetMap/proto/ip"
 )
 
-type QuotedPacket struct {
-	Header  ip2.Header
-	Payload [8]byte
+type TimeExceededPacket struct {
+	ICMPHeader
+	Unused uint32
+	QuotedPacket
 }
 
 // Unmarshal takes a byte array of a Time Exceeded ICMP IPv4Packet and fills the fields of the Object that called
@@ -20,8 +21,10 @@ func (packet *TimeExceededPacket) Unmarshal(b []byte) error {
 	}
 	packet.Unused = binary.BigEndian.Uint32(b[0:4])
 
-	var ipPacket ip2.IPv4Packet
-	packet.IPv4Packet = ip2.Unmarshal(b[4:], ipPacket)
+	var ipPacket QuotedPacket
+	if err := ip.Unmarshal(b[4:], &ipPacket); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -35,10 +38,4 @@ func (packet *TimeExceededPacket) GetHeaders() *ICMPHeader {
 
 func (packet *TimeExceededPacket) SetHeaders(header ICMPHeader) {
 	packet.ICMPHeader = header
-}
-
-type TimeExceededPacket struct {
-	ICMPHeader
-	Unused uint32
-	ip2.IPv4Packet
 }
