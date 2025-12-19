@@ -13,7 +13,7 @@ const (
 	echoReplyType = 0
 )
 
-func Ping(addr net.IP) (*ip.IPPacket, error) {
+func Ping(addr net.IP) (*ip.IPv4Packet, error) {
 	var identifier uint16 = 0
 	var sequenceNumber uint16 = 0
 
@@ -58,7 +58,7 @@ func Ping(addr net.IP) (*ip.IPPacket, error) {
 	}
 	fmt.Println(fmt.Sprintf("Recieved %d Bits from: %s", read, addr.String()))
 
-	packet := ip.NewIPPacket(cr)
+	packet := ip.Unmarshal(cr)
 
 	return packet, nil
 

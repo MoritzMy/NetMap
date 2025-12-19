@@ -8,7 +8,7 @@ type ICMPHeader struct {
 	Checksum uint16
 }
 
-// Marshal parses the ICMP Type and ICMP Code of the Packet and sets the Checksum Placeholder
+// Marshal parses the ICMP Type and ICMP Code of the IPv4Packet and sets the Checksum Placeholder
 func (packet ICMPHeader) Marshal() ([]byte, error) {
 	b := make([]byte, 0)
 	b = append(b, packet.Type, packet.Code)
