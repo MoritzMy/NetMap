@@ -13,7 +13,7 @@ func (q QuotedPacket) Marshal() ([]byte, error) {
 }
 
 func (q QuotedPacket) Unmarshal(bytes []byte) error {
-	q.Payload = [8]byte(bytes[q.HeaderSize() : q.HeaderSize()+8])
+	q.Payload = [8]byte(bytes)
 	return nil
 }
 

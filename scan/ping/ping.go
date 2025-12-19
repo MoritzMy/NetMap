@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/MoritzMy/NetMap/proto/icmp"
-	ip2 "github.com/MoritzMy/NetMap/proto/ip"
+	"github.com/MoritzMy/NetMap/proto/ip"
 )
 
 const (
 	echoReplyType = 0
 )
 
-func Ping(addr net.IP) (*ip2.IPv4Packet, error) {
+func Ping(addr net.IP) (*ip.IPv4Packet, error) {
 	var identifier uint16 = 0
 	var sequenceNumber uint16 = 0
 
@@ -45,7 +45,7 @@ func Ping(addr net.IP) (*ip2.IPv4Packet, error) {
 
 	fmt.Println(fmt.Sprintf("Wrote %d Bits to: %s", write, addr.String()))
 
-	cr := make([]byte, 84)
+	cr := make([]byte, 200)
 
 	err = conn.SetReadDeadline(time.Now().Add(time.Second))
 	if err != nil {
@@ -58,8 +58,12 @@ func Ping(addr net.IP) (*ip2.IPv4Packet, error) {
 	}
 	fmt.Println(fmt.Sprintf("Recieved %d Bits from: %s", read, addr.String()))
 
-	packet := ip2.Unmarshal(cr)
+	var packet ip.IPv4Packet
 
-	return packet, nil
+	if err := ip.Unmarshal(cr, &packet); err != nil {
+		return nil, err
+	}
+
+	return &packet, nil
 
 }

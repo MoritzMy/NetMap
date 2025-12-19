@@ -15,7 +15,7 @@ func (packet *IPv4Packet) Marshal() ([]byte, error) {
 }
 
 func (packet *IPv4Packet) Unmarshal(b []byte) error {
-	packet.Data = b[packet.HeaderSize():packet.Size()]
+	packet.Data = b
 
 	return nil
 }
@@ -24,12 +24,12 @@ func (packet *IPv4Packet) GetHeaders() *Header {
 	return &packet.Header
 }
 
-func (packet IPv4Packet) SetHeaders(header Header) {
+func (packet *IPv4Packet) SetHeaders(header Header) {
 	packet.Header = header
 }
 
 func (packet *IPv4Packet) HeaderSize() int {
-	return int(packet.Header.VersionIHL.IHL)
+	return packet.Header.VersionIHL.Size()
 }
 
 func (packet *IPv4Packet) Size() int {

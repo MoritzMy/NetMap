@@ -39,6 +39,8 @@ func Sweep() {
 					}
 					var icmpResponse icmp.EchoICMPPacket
 
+					fmt.Println(res.Data)
+
 					icmp.Unmarshal(res.Data, &icmpResponse)
 
 					fmt.Println(icmpResponse.String(), "\n", res.String())
