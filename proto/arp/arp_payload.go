@@ -55,7 +55,7 @@ func (packet *ARPRequest) GetHeaders() *eth.EthernetHeader {
 	return &packet.EthernetHeader
 }
 
-func (packet ARPRequest) Marshal() ([]byte, error) {
+func (packet *ARPRequest) Marshal() ([]byte, error) {
 	b := make([]byte, 0, ARPRequestPayloadSize)
 	b = binary.BigEndian.AppendUint16(b, packet.HTYPE)
 	b = binary.BigEndian.AppendUint16(b, packet.PTYPE)

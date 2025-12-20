@@ -20,7 +20,7 @@ func NewEthernetHeader(dest net.HardwareAddr, source net.HardwareAddr, ethertype
 	}
 }
 
-func (header EthernetHeader) Marshal() ([]byte, error) {
+func (header *EthernetHeader) Marshal() ([]byte, error) {
 	if len(header.DestinationMAC) != MACAdressLength {
 		return nil, fmt.Errorf("destination MAC adress has length of %d bytes, not the required length of 6 byte", len(header.DestinationMAC))
 	}

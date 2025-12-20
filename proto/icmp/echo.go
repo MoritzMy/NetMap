@@ -25,37 +25,37 @@ func NewEchoICMPPacket(identifier uint16, sequenceNumber uint16, payload []byte)
 	}
 }
 
-func (req *EchoICMPPacket) GetHeaders() *ICMPHeader {
-	return &req.ICMPHeader
+func (packet *EchoICMPPacket) GetHeaders() *ICMPHeader {
+	return &packet.ICMPHeader
 }
 
-func (req *EchoICMPPacket) SetHeaders(header ICMPHeader) {
-	req.ICMPHeader = header
+func (packet *EchoICMPPacket) SetHeaders(header ICMPHeader) {
+	packet.ICMPHeader = header
 }
 
-func (pkg EchoICMPPacket) Equal(other_pkg EchoICMPPacket) bool {
-	return pkg.Type == other_pkg.Type &&
-		pkg.Code == other_pkg.Code &&
-		pkg.Identifier == other_pkg.Identifier &&
-		pkg.SequenceNumber == other_pkg.SequenceNumber &&
-		bytes.Equal(pkg.Payload, other_pkg.Payload)
+func (packet EchoICMPPacket) Equal(other_pkg EchoICMPPacket) bool {
+	return packet.Type == other_pkg.Type &&
+		packet.Code == other_pkg.Code &&
+		packet.Identifier == other_pkg.Identifier &&
+		packet.SequenceNumber == other_pkg.SequenceNumber &&
+		bytes.Equal(packet.Payload, other_pkg.Payload)
 }
 
-func (p EchoICMPPacket) String() string {
+func (packet EchoICMPPacket) String() string {
 	const maxPreview = 16
 
-	preview := p.Payload
+	preview := packet.Payload
 	if len(preview) > maxPreview {
 		preview = preview[:maxPreview]
 	}
 
 	return fmt.Sprintf(
 		"ICMP Echo (type=%d code=%d id=%d seq=%d payload_len=%d payload=%q)",
-		p.Type,
-		p.Code,
-		p.Identifier,
-		p.SequenceNumber,
-		len(p.Payload),
+		packet.Type,
+		packet.Code,
+		packet.Identifier,
+		packet.SequenceNumber,
+		len(packet.Payload),
 		preview,
 	)
 }
@@ -80,8 +80,8 @@ func (packet *EchoICMPPacket) Unmarshal(data []byte) error {
 	return nil
 }
 
-func (p EchoICMPPacket) Clone() EchoICMPPacket {
-	c := p
-	c.Payload = append([]byte(nil), p.Payload...)
+func (packet EchoICMPPacket) Clone() EchoICMPPacket {
+	c := packet
+	c.Payload = append([]byte(nil), packet.Payload...)
 	return c
 }
