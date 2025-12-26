@@ -24,7 +24,7 @@ func Unmarshal[T Packet](data []byte, zero T) error {
 	if err := zero.GetHeaders().Unmarshal(data[:h.Len()]); err != nil {
 		return err
 	}
-	if err := zero.Unmarshal(data[h.Len():zero.Len()]); err != nil {
+	if err := zero.Unmarshal(data[h.Len():]); err != nil {
 		return err
 	}
 	return nil

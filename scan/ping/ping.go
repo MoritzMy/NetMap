@@ -5,6 +5,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/MoritzMy/NetMap/proto"
 	"github.com/MoritzMy/NetMap/proto/icmp"
 	"github.com/MoritzMy/NetMap/proto/ip"
 )
@@ -18,7 +19,7 @@ func Ping(addr net.IP) (*ip.IPv4Packet, error) {
 	var sequenceNumber uint16 = 0
 
 	req := icmp.NewEchoICMPPacket(identifier, sequenceNumber, []byte("ARE U UP?"))
-	b, err := icmp.Marshal(&req)
+	b, err := proto.Marshal(&req)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +61,7 @@ func Ping(addr net.IP) (*ip.IPv4Packet, error) {
 
 	var packet ip.IPv4Packet
 
-	if err := ip.Unmarshal(cr, &packet); err != nil {
+	if err := proto.Unmarshal(cr, &packet); err != nil {
 		return nil, err
 	}
 

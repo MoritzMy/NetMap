@@ -5,6 +5,7 @@ import (
 	"net"
 	"sync"
 
+	"github.com/MoritzMy/NetMap/proto"
 	"github.com/MoritzMy/NetMap/proto/icmp"
 	"github.com/MoritzMy/NetMap/proto/ip"
 )
@@ -28,15 +29,23 @@ func Sweep(addrs []net.Addr) {
 				defer wg.Done()
 
 				res, err := Ping(ip)
-				if res == nil || err != nil {
+				if res == nil {
+					return
+				}
+
+				if err != nil {
+					fmt.Println(err)
 					return
 				}
 				var icmpResponse icmp.EchoICMPPacket
 
 				fmt.Println(res.Data)
 
-				icmp.Unmarshal(res.Data, &icmpResponse)
-
+				if err := proto.Unmarshal(res.Data, &icmpResponse); err != nil {
+					fmt.Println("Error happened here")
+					return
+				}
+				fmt.Println("SOMETHING COOL COULD BE WRITTEN HERE")
 				fmt.Println(fmt.Sprintf("%s\n%s", icmpResponse.String(), res.String()))
 			}()
 		}

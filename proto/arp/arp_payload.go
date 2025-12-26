@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/MoritzMy/NetMap/proto"
 	"github.com/MoritzMy/NetMap/proto/ethernet"
 )
 
@@ -20,7 +21,7 @@ const (
 )
 
 type ARPRequest struct {
-	EthernetHeader eth.EthernetHeader
+	EthernetHeader *eth.EthernetHeader
 	HTYPE          uint16
 	PTYPE          uint16
 	HLEN           uint8
@@ -30,6 +31,23 @@ type ARPRequest struct {
 	SourceIP       net.IP
 	TargetMAC      net.HardwareAddr
 	TargetIP       net.IP
+}
+
+func (packet *ARPRequest) GetHeaders() proto.Header {
+	return packet.EthernetHeader
+}
+
+func (packet *ARPRequest) SetHeaders(header proto.Header) {
+	hdr, ok := header.(*eth.EthernetHeader)
+	if !ok {
+		panic("Wrong Header for ARP")
+	}
+	packet.EthernetHeader = hdr
+}
+
+func (packet *ARPRequest) Len() int {
+	//TODO implement me
+	panic("implement me")
 }
 
 func NewARPRequest(sourceMAC net.HardwareAddr, sourceIP net.IP, targetIP net.IP) ARPRequest {
@@ -49,10 +67,6 @@ func NewARPRequest(sourceMAC net.HardwareAddr, sourceIP net.IP, targetIP net.IP)
 		TargetIP:       targetIP,
 	}
 
-}
-
-func (packet *ARPRequest) GetHeaders() *eth.EthernetHeader {
-	return &packet.EthernetHeader
 }
 
 func (packet *ARPRequest) Marshal() ([]byte, error) {

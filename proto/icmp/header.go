@@ -10,15 +10,29 @@ type ICMPHeader struct {
 	Checksum uint16
 }
 
-func (packet ICMPHeader) Len() int {
+func NewICMPHeader() *ICMPHeader {
+	return &ICMPHeader{
+		Type:     0,
+		Code:     0,
+		Checksum: 0,
+	}
+}
+
+func (headers *ICMPHeader) Len() int {
 	return fourBytes
 }
 
 // Marshal parses the ICMP Type and ICMP Code of the IPv4Packet and sets the Checksum Placeholder
-func (packet ICMPHeader) Marshal(bytes []byte) ([]byte, error) {
+func (headers *ICMPHeader) Marshal(payload []byte) ([]byte, error) {
 	b := make([]byte, 0)
-	b = append(b, packet.Type, packet.Code)
-	b = binary.BigEndian.AppendUint16(b, packet.Checksum)
+	b = append(b, headers.Type, headers.Code)
+	b = binary.BigEndian.AppendUint16(b, headers.Checksum)
+
+	buf := append(b, payload...)
+
+	cs := computeChecksum(buf)
+
+	binary.BigEndian.PutUint16(b[2:4], cs)
 
 	return b, nil
 }

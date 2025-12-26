@@ -12,15 +12,19 @@ type EthernetHeader struct {
 	EtherType      uint16
 }
 
-func NewEthernetHeader(dest net.HardwareAddr, source net.HardwareAddr, ethertype uint16) EthernetHeader {
-	return EthernetHeader{
+func (header *EthernetHeader) Len() int {
+	return EthernetHeaderLength
+}
+
+func NewEthernetHeader(dest net.HardwareAddr, source net.HardwareAddr, ethertype uint16) *EthernetHeader {
+	return &EthernetHeader{
 		DestinationMAC: dest,
 		SourceMAC:      source,
 		EtherType:      ethertype,
 	}
 }
 
-func (header *EthernetHeader) Marshal() ([]byte, error) {
+func (header *EthernetHeader) Marshal([]byte) ([]byte, error) {
 	if len(header.DestinationMAC) != MACAdressLength {
 		return nil, fmt.Errorf("destination MAC adress has length of %d bytes, not the required length of 6 byte", len(header.DestinationMAC))
 	}

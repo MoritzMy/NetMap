@@ -16,6 +16,9 @@ type EchoICMPPacket struct {
 }
 
 func (packet *EchoICMPPacket) GetHeaders() proto.Header {
+	if packet.ICMPHeader == nil {
+		packet.ICMPHeader = NewICMPHeader()
+	}
 	return packet.ICMPHeader
 }
 
@@ -39,7 +42,7 @@ func NewEchoICMPPacket(identifier uint16, sequenceNumber uint16, payload []byte)
 	}
 }
 
-func (packet EchoICMPPacket) Equal(other_pkg EchoICMPPacket) bool {
+func (packet *EchoICMPPacket) Equal(other_pkg EchoICMPPacket) bool {
 	return packet.Type == other_pkg.Type &&
 		packet.Code == other_pkg.Code &&
 		packet.Identifier == other_pkg.Identifier &&
@@ -47,7 +50,7 @@ func (packet EchoICMPPacket) Equal(other_pkg EchoICMPPacket) bool {
 		bytes.Equal(packet.Payload, other_pkg.Payload)
 }
 
-func (packet EchoICMPPacket) String() string {
+func (packet *EchoICMPPacket) String() string {
 	const maxPreview = 16
 
 	preview := packet.Payload
@@ -86,8 +89,8 @@ func (packet *EchoICMPPacket) Unmarshal(data []byte) error {
 	return nil
 }
 
-func (packet EchoICMPPacket) Clone() EchoICMPPacket {
-	c := packet
+func (packet *EchoICMPPacket) Clone() EchoICMPPacket {
+	c := *packet
 	c.Payload = append([]byte(nil), packet.Payload...)
 	return c
 }
