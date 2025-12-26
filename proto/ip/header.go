@@ -43,7 +43,10 @@ func (header *Header) Marshal(bytes []byte) ([]byte, error) {
 }
 
 func (header *Header) Len() int {
-	return header.VersionIHL.Size()
+	return 20
+	// TODO: make this not hardcoded
+	// Len of IP Header requires context from the byte array to first determine the VersionIHL and read the actual header
+	// size from the VersionIHL
 }
 
 // Unmarshal provides a way to unmarshal the IP IPv4Packet Payload separately from the Headers

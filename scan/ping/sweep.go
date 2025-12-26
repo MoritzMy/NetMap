@@ -30,6 +30,7 @@ func Sweep(addrs []net.Addr) {
 
 				res, err := Ping(ip)
 				if res == nil {
+					fmt.Println(fmt.Sprintf("recieved empty response from %v", ip))
 					return
 				}
 
@@ -42,10 +43,8 @@ func Sweep(addrs []net.Addr) {
 				fmt.Println(res.Data)
 
 				if err := proto.Unmarshal(res.Data, &icmpResponse); err != nil {
-					fmt.Println("Error happened here")
 					return
 				}
-				fmt.Println("SOMETHING COOL COULD BE WRITTEN HERE")
 				fmt.Println(fmt.Sprintf("%s\n%s", icmpResponse.String(), res.String()))
 			}()
 		}
