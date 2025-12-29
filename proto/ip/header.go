@@ -21,22 +21,6 @@ type Header struct {
 	Options            []byte
 }
 
-func NewIPHeader() *Header {
-	return &Header{
-		VersionIHL:         NewIpv4VersionIHL(0),
-		ToS:                0,
-		TotalLength:        0,
-		Identification:     0,
-		Flags:              0,
-		Fragmentation:      0,
-		TTL:                0,
-		Protocol:           0,
-		Checksum:           0,
-		SourceAddress:      nil,
-		DestinationAddress: nil,
-		Options:            nil,
-	}
-}
 func (header *Header) Marshal(bytes []byte) ([]byte, error) {
 	//TODO implement me
 	panic("implement me")

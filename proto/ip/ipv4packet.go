@@ -13,7 +13,8 @@ type IPv4Packet struct {
 
 func (packet *IPv4Packet) GetHeaders() proto.Header {
 	if packet.Header == nil {
-		packet.Header = NewIPHeader()
+		var hdr Header
+		packet.Header = &hdr
 	}
 	return packet.Header
 }
