@@ -2,6 +2,7 @@ package arp
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"net"
 
@@ -62,14 +63,21 @@ func NewARPRequest(sourceMAC net.HardwareAddr, sourceIP net.IP, targetIP net.IP)
 		PLEN:           IPv4Length,
 		OPER:           OPERRequest,
 		SourceMAC:      sourceMAC,
-		SourceIP:       sourceIP,
+		SourceIP:       sourceIP.To4(),
 		TargetMAC:      targetMAC,
-		TargetIP:       targetIP,
+		TargetIP:       targetIP.To4(),
 	}
 
 }
 
 func (packet *ARPRequest) Marshal() ([]byte, error) {
+	if len(packet.SourceMAC) != 6 || len(packet.TargetMAC) != 6 {
+		return nil, errors.New("invalid MAC length")
+	}
+	if len(packet.SourceIP) != 4 || len(packet.TargetIP) != 4 {
+		return nil, errors.New(fmt.Sprintf("invalid IP length: %v or %v are faulty", packet.SourceIP, packet.TargetIP))
+	}
+
 	b := make([]byte, 0, ARPRequestPayloadSize)
 	b = binary.BigEndian.AppendUint16(b, packet.HTYPE)
 	b = binary.BigEndian.AppendUint16(b, packet.PTYPE)

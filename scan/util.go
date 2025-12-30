@@ -2,15 +2,15 @@ package scan
 
 import "net"
 
-type InterfaceAdress struct {
+type InterfaceAddress struct {
 	Name string
 	MAC  net.HardwareAddr
 	IPs  []net.IP
 }
 
-func InterfaceAdresses() []InterfaceAdress {
+func InterfaceAdresses() []InterfaceAddress {
 	ifaces, _ := net.Interfaces()
-	ifaceAddrs := make([]InterfaceAdress, 0)
+	ifaceAddrs := make([]InterfaceAddress, 0)
 	for _, iface := range ifaces {
 		if len(iface.HardwareAddr) == 0 {
 			continue
@@ -31,7 +31,7 @@ func InterfaceAdresses() []InterfaceAdress {
 			}
 		}
 
-		ifaceAddrs = append(ifaceAddrs, InterfaceAdress{
+		ifaceAddrs = append(ifaceAddrs, InterfaceAddress{
 			Name: iface.Name,
 			MAC:  iface.HardwareAddr,
 			IPs:  ips,
