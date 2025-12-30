@@ -14,23 +14,10 @@ func SendEthernetFrame(frame []byte, iface string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	ifIndex := interf.Index
 
-	fd, err := syscall.Socket(
-		syscall.AF_PACKET,
-		syscall.SOCK_RAW,
-		int(htons(syscall.ETH_P_ARP)))
+	fd, err := CreateSocket(interf)
+
 	if err != nil {
-		return nil, err
-	}
-	defer syscall.Close(fd)
-
-	addr := syscall.SockaddrLinklayer{
-		Protocol: htons(syscall.ETH_P_ARP),
-		Ifindex:  ifIndex,
-	}
-
-	if err := syscall.Bind(fd, &addr); err != nil {
 		return nil, err
 	}
 
@@ -46,6 +33,30 @@ func SendEthernetFrame(frame []byte, iface string) ([]byte, error) {
 	}
 
 	return response, err
+}
+
+func CreateSocket(interf *net.Interface) (int, error) {
+	ifIndex := interf.Index
+
+	fd, err := syscall.Socket(
+		syscall.AF_PACKET,
+		syscall.SOCK_RAW,
+		int(htons(syscall.ETH_P_ARP)))
+	if err != nil {
+		return 0, err
+	}
+	defer syscall.Close(fd)
+
+	addr := syscall.SockaddrLinklayer{
+		Protocol: htons(syscall.ETH_P_ARP),
+		Ifindex:  ifIndex,
+	}
+
+	if err := syscall.Bind(fd, &addr); err != nil {
+		return 0, err
+	}
+
+	return fd, nil
 }
 
 func htons(v uint16) uint16 {

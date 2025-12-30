@@ -20,5 +20,4 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	ping.Sweep(addrs)
 }
