@@ -24,7 +24,7 @@ func ValidIpsInNetwork(addr *net.IPNet) []net.IP {
 	count := (1 << hostBits) - 2
 
 	for i := 0; i < count; i++ {
-		IncrementIP(currAddr)
+		incrementIP(currAddr)
 
 		if isNetworkIP(currAddr, subnet) || isBroadcastIP(currAddr, subnet) {
 			continue
@@ -36,7 +36,7 @@ func ValidIpsInNetwork(addr *net.IPNet) []net.IP {
 	return hosts
 }
 
-func IncrementIP(ip net.IP) net.IP {
+func incrementIP(ip net.IP) net.IP {
 	for j := len(ip) - 1; j >= 0; j-- {
 		ip[j]++
 		if ip[j] != 0 {

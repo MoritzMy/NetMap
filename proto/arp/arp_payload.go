@@ -71,7 +71,7 @@ func NewARPRequest(sourceMAC net.HardwareAddr, sourceIP net.IP, targetIP net.IP)
 
 func (packet *ARPRequest) Marshal() ([]byte, error) {
 	if len(packet.SourceMAC) != 6 || len(packet.TargetMAC) != 6 {
-		return nil, errors.New("invalid MAC length")
+		return nil, errors.New(fmt.Sprintf("invalid MAC length : %v or %v are faulty", packet.SourceMAC, packet.TargetMAC))
 	}
 	if len(packet.SourceIP) != 4 || len(packet.TargetIP) != 4 {
 		return nil, errors.New(fmt.Sprintf("invalid IP length: %v or %v are faulty", packet.SourceIP, packet.TargetIP))
