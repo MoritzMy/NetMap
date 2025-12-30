@@ -41,10 +41,6 @@ func (header *EthernetHeader) Marshal([]byte) ([]byte, error) {
 }
 
 func (header *EthernetHeader) Unmarshal(b []byte) error {
-	if len(b) != EthernetHeaderLength {
-		return fmt.Errorf("provided byte array does not meet required length of 14")
-	}
-
 	header.DestinationMAC = b[0:6]
 	header.SourceMAC = b[6:12]
 	header.EtherType = binary.BigEndian.Uint16(b[12:14])

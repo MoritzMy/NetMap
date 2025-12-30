@@ -26,7 +26,7 @@ func Unmarshal[T Packet](data []byte, zero T) error {
 
 	// Header Interface must implement a calculate Header Length function which takes []byte as input
 
-	if err := zero.GetHeaders().Unmarshal(data); err != nil {
+	if err := h.Unmarshal(data); err != nil {
 		return err
 	}
 	if err := zero.Unmarshal(data[h.Len():]); err != nil {

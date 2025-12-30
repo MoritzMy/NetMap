@@ -47,8 +47,7 @@ func (packet *ARPRequest) SetHeaders(header proto.Header) {
 }
 
 func (packet *ARPRequest) Len() int {
-	//TODO implement me
-	panic("implement me")
+	return 28
 }
 
 func NewARPRequest(sourceMAC net.HardwareAddr, sourceIP net.IP, targetIP net.IP) ARPRequest {
@@ -92,10 +91,6 @@ func (packet *ARPRequest) Marshal() ([]byte, error) {
 }
 
 func (packet *ARPRequest) Unmarshal(b []byte) error {
-	if len(b) != 28 {
-		return fmt.Errorf("provided byte array does not match required size of 28 Bytes")
-	}
-
 	packet.HTYPE = binary.BigEndian.Uint16(b[0:2])
 	packet.PTYPE = binary.BigEndian.Uint16(b[2:4])
 	packet.HLEN = b[4]

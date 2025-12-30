@@ -26,5 +26,14 @@ func SendARPRequest(address scan.InterfaceAddress, targetIP net.IP) {
 		log.Fatal(err)
 	}
 	fmt.Println("sent")
-	fmt.Println("Response: ", string(res))
+
+	var hdr eth.EthernetHeader
+	var pac arp.ARPRequest
+	pac.EthernetHeader = &hdr
+
+	if err := proto.Unmarshal(res, &pac); err != nil {
+		panic(err)
+	}
+	fmt.Println("RECEIVED ARP RESPONSE:")
+	fmt.Println(pac)
 }
