@@ -6,6 +6,12 @@ import (
 	"net"
 )
 
+const (
+	IHLHeaderByteIncrement = 4
+	halfByte               = 4
+	MinIPPacketSize        = 20
+)
+
 type Header struct {
 	VersionIHL         IPv4VersionIHL
 	ToS                uint8

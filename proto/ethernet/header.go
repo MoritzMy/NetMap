@@ -6,6 +6,11 @@ import (
 	"net"
 )
 
+const (
+	MACAdressLength      = 6
+	EthernetHeaderLength = 14
+)
+
 type EthernetHeader struct {
 	DestinationMAC net.HardwareAddr
 	SourceMAC      net.HardwareAddr

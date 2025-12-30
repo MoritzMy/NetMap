@@ -8,6 +8,13 @@ import (
 	"github.com/MoritzMy/NetMap/proto"
 )
 
+const (
+	echoCode       = 0
+	echoType       = 8
+	maxPayload     = 56
+	echoHeaderSize = 4
+)
+
 type EchoICMPPacket struct {
 	*ICMPHeader
 	Identifier     uint16
