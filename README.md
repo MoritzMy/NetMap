@@ -22,33 +22,6 @@ Rather than relying on existing high-level libraries, NetMap focuses on understa
 NetMap is under active development.  
 Features, APIs, and behavior may change as the project evolves.
 
-
-## Features
-
-- Manual ICMP Echo / Echo Reply implementation
-- Ping sweep across the local subnet
-- ICMP-based traceroute with increasing TTL
-- Hop discovery and round-trip time measurement
-- Aggregation of routes into a network graph
-- Lightweight and dependency-minimal design
-
-
-## How It Works
-
-1. **Subnet Discovery**  
-   The local network range is derived from the active network interfaces.
-
-2. **Ping Sweep**  
-   Each IP address in the subnet is probed using ICMP Echo requests to identify responsive hosts.
-
-3. **Traceroute Probing**  
-   Responsive hosts are traced using ICMP packets with increasing TTL values, capturing intermediate hops via ICMP Time Exceeded responses.
-
-4. **Topology Inference**  
-   Discovered routes are merged into a graph structure, where:
-    - Nodes represent IP addresses
-    - Edges represent observed hop-to-hop connections
-
 ## Limitations
 
 NetMap infers topology based on active probing and therefore has inherent limitations:
