@@ -2,7 +2,9 @@ package arp_scan
 
 import (
 	"fmt"
+	"log"
 	"net"
+	"sync"
 
 	"github.com/MoritzMy/NetMap/proto"
 	"github.com/MoritzMy/NetMap/proto/arp"
@@ -10,10 +12,7 @@ import (
 	"github.com/MoritzMy/NetMap/proto/ip"
 )
 
-func SendARPRequest(iface net.Interface, targetIP net.IP) {
-	fmt.Println("ARP Scan...")
-	fmt.Println(iface, targetIP)
-	fmt.Println(iface.Addrs())
+func SendARPRequest(iface net.Interface, targetIP net.IP) bool {
 	addrs, _ := iface.Addrs()
 
 	for _, addr := range addrs {
@@ -28,13 +27,14 @@ func SendARPRequest(iface net.Interface, targetIP net.IP) {
 
 		req := arp.NewARPRequest(iface.HardwareAddr, ipNet.IP, targetIP)
 		b, err := proto.Marshal(&req)
-		fmt.Println("RAW HEADER: ", req.EthernetHeader, "RAW ARP PACKET", req)
 		if err != nil {
-			panic(err)
+			log.Println("error occurred while marshalling ARP request:", err)
+			return false
 		}
 		res, err := eth.SendEthernetFrame(b, iface.Name)
 		if err != nil {
-			return
+			log.Println("error occurred while sending ARP request:", err)
+			return false
 		}
 
 		var hdr eth.EthernetHeader
@@ -42,11 +42,14 @@ func SendARPRequest(iface net.Interface, targetIP net.IP) {
 		pac.EthernetHeader = &hdr
 
 		if err := proto.Unmarshal(res, &pac); err != nil {
-			panic(err)
+			log.Println("error occurred while unmarshalling ARP response:", err)
+			return false
 		}
 		fmt.Println("RECEIVED ARP RESPONSE:")
 		fmt.Println(pac)
 	}
+	return true
+
 }
 
 func ScanNetwork(iface net.Interface) error {
@@ -54,6 +57,8 @@ func ScanNetwork(iface net.Interface) error {
 	if err != nil {
 		return err
 	}
+
+	respondedIps := make([]net.IP, 0)
 
 	for _, addr := range addrs {
 		ipNet, ok := addr.(*net.IPNet)
@@ -66,11 +71,24 @@ func ScanNetwork(iface net.Interface) error {
 			continue
 		}
 
+		var wg sync.WaitGroup
+
 		for _, ip := range ip.ValidIpsInNetwork(ipNet) {
 			fmt.Println("Scanning IP:", ip)
-			SendARPRequest(iface, ip)
+			wg.Go(func() {
+				if ok := SendARPRequest(iface, ip); !ok {
+					log.Println("Failed to send ARP request to", ip)
+				} else {
+					respondedIps = append(respondedIps, ip)
+				}
+			})
 		}
+
+		wg.Wait()
 	}
 
+	fmt.Println(respondedIps)
+
 	return nil
+
 }

@@ -1,15 +1,12 @@
 package eth
 
 import (
-	"fmt"
 	"net"
 	"syscall"
 )
 
 func SendEthernetFrame(frame []byte, iface string) ([]byte, error) {
 	interf, err := net.InterfaceByName(iface)
-
-	fmt.Println("SENDING FRAME", frame)
 
 	if err != nil {
 		return nil, err
@@ -27,7 +24,7 @@ func SendEthernetFrame(frame []byte, iface string) ([]byte, error) {
 		return nil, err
 	}
 
-	response, err := ReadARPResponse(fd)
+	response, err := ReadARPResponse(fd, net.IP(frame[38:42]))
 	if err != nil {
 		return nil, err
 	}
