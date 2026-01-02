@@ -15,7 +15,7 @@ func ARPResponseListener(fd int, ctx context.Context) <-chan Reply {
 	go func() {
 		defer close(out)
 
-		buf := make([]byte, 128)
+		buf := make([]byte, 128) // Buffer to hold incoming packets
 
 		for {
 			select {
@@ -30,6 +30,7 @@ func ARPResponseListener(fd int, ctx context.Context) <-chan Reply {
 				continue
 			}
 
+			// Basic validation of ARP reply packet
 			if n < 42 || !(buf[12] == 0x08 && buf[13] == 0x06 && binary.BigEndian.Uint16(buf[20:22]) == 2) {
 				continue
 			}

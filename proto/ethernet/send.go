@@ -15,6 +15,7 @@ func SendEthernetFrame(frame []byte, iface string, fd int) error {
 func CreateSocket(interf *net.Interface) (int, error) {
 	ifIndex := interf.Index
 
+	// Create a raw socket
 	fd, err := syscall.Socket(
 		syscall.AF_PACKET,
 		syscall.SOCK_RAW,
@@ -23,11 +24,13 @@ func CreateSocket(interf *net.Interface) (int, error) {
 		return 0, err
 	}
 
+	// Bind the socket to the specified interface using SockaddrLinklayer
 	addr := syscall.SockaddrLinklayer{
 		Protocol: htons(syscall.ETH_P_ARP),
 		Ifindex:  ifIndex,
 	}
 
+	// Bind the socket to the address structure
 	if err := syscall.Bind(fd, &addr); err != nil {
 		syscall.Close(fd)
 		return 0, err

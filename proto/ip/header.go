@@ -37,10 +37,6 @@ func (header *Header) Len() int {
 	return header.VersionIHL.Size()
 }
 
-func (header *Header) GetTotalLength(b []byte) int {
-	return 0
-}
-
 // Unmarshal provides a way to unmarshal the IP IPv4Packet Payload separately from the Headers
 func (header *Header) Unmarshal(b []byte) error {
 	if len(b) < MinIPPacketSize {

@@ -15,34 +15,27 @@ import (
 	ip "github.com/MoritzMy/NetMap/proto/ip"
 )
 
+// SendARPRequest constructs and sends an ARP request for the given target IP on the specified interface.
 func SendARPRequest(iface net.Interface, targetIP net.IP, fd int) bool {
 	addrs, _ := iface.Addrs()
 
 	for _, addr := range addrs {
 		sourceIPNet, ok := addr.(*net.IPNet)
-		if !ok {
+		if !ok || sourceIPNet.IP.To4() == nil {
 			continue
 		}
 
-		if sourceIPNet.IP.To4() == nil {
-			continue
-		}
-
-		req := arp.NewARPRequest(iface.HardwareAddr, sourceIPNet.IP, targetIP)
+		req := arp.NewARPRequest(iface.HardwareAddr, sourceIPNet.IP, targetIP) // Create ARP request
 		b, err := proto.Marshal(&req)
 		if err != nil {
 			log.Println("error occurred while marshalling ARP request:", err)
 			return false
 		}
-		err = eth.SendEthernetFrame(b, iface.Name, fd)
+		err = eth.SendEthernetFrame(b, iface.Name, fd) // Send ARP request
 		if err != nil {
 			log.Println("error occurred while sending ARP request:", err)
 			return false
 		}
-
-		var hdr eth.EthernetHeader
-		var pac arp.ARPRequest
-		pac.EthernetHeader = &hdr
 	}
 	return true
 
@@ -77,7 +70,7 @@ func ScanNetwork(iface net.Interface) error {
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 256) // Semaphore to limit concurrency
 
-	ticker := time.NewTicker(time.Millisecond * 20)
+	ticker := time.NewTicker(time.Millisecond * 10) // Throttle request rate
 	defer ticker.Stop()
 
 	for _, addr := range addrs {
@@ -87,7 +80,7 @@ func ScanNetwork(iface net.Interface) error {
 		}
 
 		for _, ip := range ip.ValidIpsInNetwork(sourceIPNet) {
-			<-ticker.C
+			<-ticker.C        // Throttle
 			sem <- struct{}{} // Acquire semaphore
 			ip := ip          // Capture range variable
 			wg.Go(func() {
@@ -100,12 +93,13 @@ func ScanNetwork(iface net.Interface) error {
 
 	wg.Wait()
 
-	drain := time.NewTimer(1 * time.Second)
+	drain := time.NewTimer(1 * time.Second) // Wait for late responses
 	<-drain.C
 
 	return nil
 }
 
+// sumBytes returns the sum of all byte values in the given slice.
 func sumBytes(b []byte) int {
 	sum := 0
 	for _, byteVal := range b {

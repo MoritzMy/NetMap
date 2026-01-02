@@ -7,7 +7,7 @@ import (
 	"net"
 
 	"github.com/MoritzMy/NetMap/proto"
-	"github.com/MoritzMy/NetMap/proto/ethernet"
+	eth "github.com/MoritzMy/NetMap/proto/ethernet"
 )
 
 const (
