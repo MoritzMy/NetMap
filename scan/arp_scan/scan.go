@@ -63,7 +63,7 @@ func ScanNetwork(iface net.Interface) error {
 	}
 	defer syscall.Close(fd)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	ch := arp.ARPResponseListener(fd, ctx)
@@ -77,6 +77,9 @@ func ScanNetwork(iface net.Interface) error {
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 256) // Semaphore to limit concurrency
 
+	ticker := time.NewTicker(time.Millisecond * 20)
+	defer ticker.Stop()
+
 	for _, addr := range addrs {
 		sourceIPNet, ok := addr.(*net.IPNet)
 		if !ok || sourceIPNet.IP.To4() == nil {
@@ -84,6 +87,7 @@ func ScanNetwork(iface net.Interface) error {
 		}
 
 		for _, ip := range ip.ValidIpsInNetwork(sourceIPNet) {
+			<-ticker.C
 			sem <- struct{}{} // Acquire semaphore
 			ip := ip          // Capture range variable
 			wg.Go(func() {
@@ -95,7 +99,9 @@ func ScanNetwork(iface net.Interface) error {
 	}
 
 	wg.Wait()
-	<-ctx.Done()
+
+	drain := time.NewTimer(1 * time.Second)
+	<-drain.C
 
 	return nil
 }
