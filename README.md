@@ -40,7 +40,7 @@ NetMap only supports IPv4 as of now
    
 3. Build the project:
    ```bash
-   go build -o netmap main.go
+   go build -o netmap netmap.go
    ```
    
 4. Run the tool with appropriate permissions: requires `sudo` for raw socket access:
