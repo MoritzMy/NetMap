@@ -19,13 +19,15 @@ func Sweep(ifaces []net.Interface) {
 			continue
 		}
 		for _, addr := range addrs {
-			if addr.(*net.IPNet).IP.IsLoopback() {
+			sourceIPNet, ok := addr.(*net.IPNet)
+
+			if sourceIPNet.IP.IsLoopback() || sourceIPNet.IP.To4() == nil || !ok {
 				continue
 			}
 
 			var wg sync.WaitGroup
 
-			for _, ip := range ip.ValidIpsInNetwork(addr.(*net.IPNet)) {
+			for _, ip := range ip.ValidIpsInNetwork(sourceIPNet) {
 				ip := ip // Otherwise Routines will use last IP
 
 				wg.Add(1)

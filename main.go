@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net"
 
@@ -9,11 +10,44 @@ import (
 )
 
 func main() {
-	ifaces, _ := net.Interfaces()
-	fmt.Println(ifaces)
-	arp_scan.ScanNetwork(ifaces[1])
+	arp := flag.Bool("arp", false, "Run ARP Discovery Scan")
+	icmp := flag.Bool("icmp", false, "Run ICMP Sweep")
+
+	flag.Parse()
+
+	if *arp {
+		runARPScan()
+	}
+
+	if *icmp {
+		runICMPSweep()
+	}
+
+	if !*arp && !*icmp {
+		fmt.Println("Please specify a scan type. Use -h for help.")
+	}
+}
+
+func runARPScan() {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		fmt.Println("Error getting network interfaces:", err)
+		return
+	}
+
+	for _, iface := range ifaces {
+		if err := arp_scan.ScanNetwork(iface); err != nil {
+			fmt.Printf("Error scanning network on interface %s: %v\n", iface.Name, err)
+		}
+	}
+}
+
+func runICMPSweep() {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		fmt.Println("Error getting network interfaces:", err)
+		return
+	}
 
 	ping.Sweep(ifaces)
-
-	return
 }
