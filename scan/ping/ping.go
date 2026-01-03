@@ -9,14 +9,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/MoritzMy/NetMap/proto"
 	"github.com/MoritzMy/NetMap/proto/icmp"
 	"github.com/MoritzMy/NetMap/proto/ip"
 	"github.com/MoritzMy/NetMap/scan/arp_scan"
-)
-
-const (
-	echoReplyType = 0
 )
 
 // Sweep performs a Ping Sweep over the given List of Network Adresses
@@ -54,7 +49,7 @@ func Sweep(iface net.Interface) error {
 		defer pc.Close()
 
 		go func() {
-			replyChan := pingReplyListener(pc, ctx)
+			replyChan := icmp.PingReplyListener(pc, ctx)
 			for reply := range replyChan {
 				if _, loaded := seen.LoadOrStore(reply.String(), true); loaded {
 					continue
@@ -76,7 +71,7 @@ func Sweep(iface net.Interface) error {
 
 			wg.Go(func() {
 				id := uint16(os.Getpid() & 0xffff)
-				err := sendPing(pc, ip, id, 0)
+				err := icmp.SendPing(pc, ip, id, 0)
 
 				if err != nil {
 					fmt.Println(err)
@@ -95,49 +90,4 @@ func Sweep(iface net.Interface) error {
 
 	fmt.Println(fmt.Sprintf("Ping Sweep complete, %d hosts are up!", count.Load()))
 	return nil
-}
-
-func sendPing(conn net.PacketConn, dst net.IP, id, seq uint16) error {
-	req := icmp.NewEchoICMPPacket(id, seq, []byte("ARE U UP?"))
-	b, err := proto.Marshal(&req)
-	if err != nil {
-		return err
-	}
-
-	_, err = conn.WriteTo(b, &net.IPAddr{IP: dst})
-	return err
-}
-
-func pingReplyListener(conn net.PacketConn, ctx context.Context) <-chan net.IP {
-	ch := make(chan net.IP)
-	buf := make([]byte, 200)
-
-	go func() {
-		defer close(ch)
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-
-			_, addr, err := conn.ReadFrom(buf)
-			if err != nil {
-				continue
-			}
-
-			var packet icmp.EchoICMPPacket
-
-			if err := proto.Unmarshal(buf, &packet); err != nil {
-				continue
-			}
-
-			if packet.Type != echoReplyType {
-				continue
-			}
-
-			ch <- addr.(*net.IPAddr).IP
-		}
-	}()
-	return ch
 }
