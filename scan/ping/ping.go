@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/MoritzMy/NetMap/proto"
@@ -19,7 +21,7 @@ const (
 
 // Sweep performs a Ping Sweep over the given List of Network Adresses
 func Sweep(iface net.Interface) error {
-	count := 0
+	var count atomic.Int64
 	ticker := time.NewTicker(time.Millisecond * 10) // Throttle request rate
 	defer ticker.Stop()
 
@@ -34,6 +36,8 @@ func Sweep(iface net.Interface) error {
 	if arp_scan.SumBytes(iface.HardwareAddr) == 0 {
 		return fmt.Errorf("interface %s has no MAC address, skipping ARP scan", iface.Name)
 	}
+
+	seen := sync.Map{}
 
 	for _, addr := range addrs {
 		if addr.(*net.IPNet).IP.To4() == nil {
@@ -50,10 +54,13 @@ func Sweep(iface net.Interface) error {
 		defer pc.Close()
 
 		go func() {
-			replyChan := PingReplyListener(pc, ctx)
+			replyChan := pingReplyListener(pc, ctx)
 			for reply := range replyChan {
+				if _, loaded := seen.LoadOrStore(reply.String(), true); loaded {
+					continue
+				}
 				fmt.Println("Host", reply, "is up!")
-				count++
+				count.Add(1)
 			}
 		}()
 
@@ -68,7 +75,8 @@ func Sweep(iface net.Interface) error {
 			<-ticker.C // Throttle
 
 			wg.Go(func() {
-				err := SendPing(pc, ip, 0, 0)
+				id := uint16(os.Getpid() & 0xffff)
+				err := sendPing(pc, ip, id, 0)
 
 				if err != nil {
 					fmt.Println(err)
@@ -83,13 +91,13 @@ func Sweep(iface net.Interface) error {
 
 	drain := time.NewTimer(1 * time.Second) // Wait for late responses
 	<-drain.C
-	ctx.Done() // Stop listener
+	cancel() // Stop listener
 
-	fmt.Println(fmt.Sprintf("Ping Sweep complete, %d hosts are up!", count))
+	fmt.Println(fmt.Sprintf("Ping Sweep complete, %d hosts are up!", count.Load()))
 	return nil
 }
 
-func SendPing(conn net.PacketConn, dst net.IP, id, seq uint16) error {
+func sendPing(conn net.PacketConn, dst net.IP, id, seq uint16) error {
 	req := icmp.NewEchoICMPPacket(id, seq, []byte("ARE U UP?"))
 	b, err := proto.Marshal(&req)
 	if err != nil {
@@ -100,7 +108,7 @@ func SendPing(conn net.PacketConn, dst net.IP, id, seq uint16) error {
 	return err
 }
 
-func PingReplyListener(conn net.PacketConn, ctx context.Context) <-chan net.IP {
+func pingReplyListener(conn net.PacketConn, ctx context.Context) <-chan net.IP {
 	ch := make(chan net.IP)
 	buf := make([]byte, 200)
 

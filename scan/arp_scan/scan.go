@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -62,7 +63,7 @@ func ScanNetwork(iface net.Interface) error {
 
 	ch := arp.ARPResponseListener(fd, ctx)
 
-	count := 0
+	var count atomic.Int64
 
 	go func() {
 		for res := range ch {
@@ -70,7 +71,7 @@ func ScanNetwork(iface net.Interface) error {
 				fmt.Println("VRRP found")
 			}
 			log.Println("Received ARP response from", res.IP, "with MAC", res.MAC)
-			count++
+			count.Add(1)
 		}
 	}()
 
@@ -87,6 +88,9 @@ func ScanNetwork(iface net.Interface) error {
 		}
 
 		for _, ip := range ip.ValidIpsInNetwork(sourceIPNet) {
+			if ip.Equal(sourceIPNet.IP) {
+				continue
+			}
 			<-ticker.C        // Throttle
 			sem <- struct{}{} // Acquire semaphore
 			ip := ip          // Capture range variable
@@ -102,9 +106,9 @@ func ScanNetwork(iface net.Interface) error {
 
 	drain := time.NewTimer(1 * time.Second) // Wait for late responses
 	<-drain.C
-	ctx.Done() // Stop listener
+	cancel() // Stop listener
 
-	fmt.Println(fmt.Sprintf("%d ARP packets received", count))
+	fmt.Println(fmt.Sprintf("%d ARP packets received", count.Load()))
 
 	return nil
 }
