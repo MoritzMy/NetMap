@@ -62,9 +62,15 @@ func ScanNetwork(iface net.Interface) error {
 
 	ch := arp.ARPResponseListener(fd, ctx)
 
+	count := 0
+
 	go func() {
 		for res := range ch {
+			if eth.IsVrrpMulticastMAC(res.MAC) {
+				fmt.Println("Vrrp found")
+			}
 			log.Println("Received ARP response from", res.IP, "with MAC", res.MAC)
+			count++
 		}
 	}()
 
@@ -96,6 +102,9 @@ func ScanNetwork(iface net.Interface) error {
 
 	drain := time.NewTimer(1 * time.Second) // Wait for late responses
 	<-drain.C
+	ctx.Done() // Stop listener
+
+	fmt.Println(fmt.Sprintf("%d ARP packets received", count))
 
 	return nil
 }
