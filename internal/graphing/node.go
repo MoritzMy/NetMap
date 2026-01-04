@@ -1,4 +1,4 @@
-package _map
+package graphing
 
 import (
 	"net"

@@ -1,7 +1,9 @@
-package _map
+package graphing
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"sync"
 )
 
@@ -74,4 +76,58 @@ func (g *Graph) String() string {
 		result += "- From: " + edge.From.ID + " To: " + edge.To.ID + " Type: " + string(edge.Type) + "\n"
 	}
 	return result
+}
+
+func (g *Graph) ToDOT() string {
+	var b strings.Builder
+
+	b.WriteString("digraph netmap {\n")
+	b.WriteString("  rankdir=LR;\n")
+	b.WriteString("  node [fontname=\"Helvetica\"];\n\n")
+
+	// Nodes
+	for _, n := range g.Nodes {
+		shape := "ellipse"
+		color := "black"
+
+		switch n.Type {
+		case NodeHost:
+			shape = "box"
+		case NodeNetwork:
+			shape = "oval"
+		case NodeGateway:
+			shape = "diamond"
+		}
+
+		label := n.ID
+		if n.IP != nil {
+			label = n.IP.String()
+		}
+
+		fmt.Fprintf(
+			&b,
+			"  \"%s\" [label=\"%s\", shape=%s, color=%s];\n",
+			n.ID, label, shape, color,
+		)
+	}
+
+	b.WriteString("\n")
+
+	// Edges
+	for _, e := range g.Edges {
+		fmt.Fprintf(
+			&b,
+			"  \"%s\" -> \"%s\" [label=\"%s\"];\n",
+			e.From.ID, e.To.ID, e.Type,
+		)
+	}
+
+	b.WriteString("}\n")
+	return b.String()
+}
+
+func (g *Graph) ExportToDOT(filename string) error {
+	dot := g.ToDOT()
+	err := os.WriteFile(filename+".dot", []byte(dot), 0644)
+	return err
 }

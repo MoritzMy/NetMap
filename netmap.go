@@ -7,12 +7,13 @@ import (
 
 	"github.com/MoritzMy/NetMap/cmd/arp_scan"
 	"github.com/MoritzMy/NetMap/cmd/ping"
-	_map "github.com/MoritzMy/NetMap/internal/map"
+	_map "github.com/MoritzMy/NetMap/internal/graphing"
 )
 
 func main() {
 	arp := flag.Bool("arp-scan", false, "Run ARP Discovery Scan")
 	icmp := flag.Bool("ping-sweep", false, "Run ICMP Sweep")
+	dot_file := flag.String("dot-file", "", "Output the resulting graph to a DOT file")
 
 	flag.Parse()
 
@@ -28,6 +29,15 @@ func main() {
 
 	if !*arp && !*icmp {
 		fmt.Println("Please specify a scan type. Use -h for help.")
+	}
+
+	if *dot_file != "" {
+		err := graph.ExportToDOT(*dot_file)
+		if err != nil {
+			fmt.Println("Error exporting graph to DOT file:", err)
+		} else {
+			fmt.Printf("Graph exported to %s\n", *dot_file)
+		}
 	}
 
 	fmt.Println(graph)
