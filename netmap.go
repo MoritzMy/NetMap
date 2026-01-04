@@ -23,7 +23,7 @@ func main() {
 	}
 
 	if *icmp {
-		runICMPSweep()
+		runICMPSweep(graph)
 	}
 
 	if !*arp && !*icmp {
@@ -62,16 +62,25 @@ func runARPScan(graph *_map.Graph) {
 
 }
 
-func runICMPSweep() {
+func runICMPSweep(graph *_map.Graph) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		fmt.Println("Error getting network interfaces:", err)
 		return
 	}
+	in := make(chan net.IP)
+
+	go func() {
+		for ip := range in {
+			fmt.Printf("Discovered host - IP: %s\n", ip)
+			node := graph.GetOrCreateNode("ip:" + ip.String())
+			node.Protocols["icmp"] = true
+		}
+	}()
 
 	for _, iface := range ifaces {
 		fmt.Printf("Starting ICMP Sweep on interface %s\n", iface.Name)
-		if err := ping.Sweep(iface); err != nil {
+		if err := ping.Sweep(iface, in); err != nil {
 			fmt.Printf("Error during ICMP Sweep on interface %s: %v\n", iface.Name, err)
 		}
 	}

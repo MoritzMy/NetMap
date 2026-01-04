@@ -15,7 +15,7 @@ import (
 )
 
 // Sweep performs a Ping Sweep over the given List of Network Adresses on the specified network interface.
-func Sweep(iface net.Interface) error {
+func Sweep(iface net.Interface, out chan<- net.IP) error {
 	var count atomic.Int64
 	ticker := time.NewTicker(time.Millisecond * 10) // Throttle request rate
 	defer ticker.Stop()
@@ -54,6 +54,7 @@ func Sweep(iface net.Interface) error {
 				if _, loaded := seen.LoadOrStore(reply.String(), true); loaded {
 					continue
 				}
+				out <- reply
 				fmt.Println("Host", reply, "is up!")
 				count.Add(1)
 			}
