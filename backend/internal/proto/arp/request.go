@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/MoritzMy/NetMap/internal/proto"
-	"github.com/MoritzMy/NetMap/internal/proto/ethernet"
+	"github.com/MoritzMy/NetMap/backend/internal/proto"
+	"github.com/MoritzMy/NetMap/backend/internal/proto/ethernet"
 )
 
 const (
@@ -23,7 +23,7 @@ const (
 
 // Request represents an ARP Request Packet structure. For more information see RFC 826.
 type Request struct {
-	EthernetHeader *eth.EthernetHeader
+	EthernetHeader *eth.eth
 	HTYPE          uint16
 	PTYPE          uint16
 	HLEN           uint8

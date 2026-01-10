@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	eth "github.com/MoritzMy/NetMap/internal/proto/ethernet"
+	"github.com/MoritzMy/NetMap/backend/internal/proto/ethernet"
 	"github.com/endobit/oui"
 )
 

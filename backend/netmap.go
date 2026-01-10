@@ -7,9 +7,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/MoritzMy/NetMap/cmd/arp_scan"
-	"github.com/MoritzMy/NetMap/cmd/ping"
-	"github.com/MoritzMy/NetMap/internal/graphing"
+	arp_scan2 "github.com/MoritzMy/NetMap/backend/cmd/arp_scan"
+	"github.com/MoritzMy/NetMap/backend/cmd/ping"
+	graphing2 "github.com/MoritzMy/NetMap/backend/internal/graphing"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 
 	flag.Parse()
 
-	graph := graphing.NewGraph()
+	graph := graphing2.NewGraph()
 
 	if *arp {
 		runARPScan(graph)
@@ -69,14 +69,14 @@ func main() {
 	fmt.Println(graph)
 }
 
-func runARPScan(graph *graphing.Graph) {
+func runARPScan(graph *graphing2.Graph) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		fmt.Println("Error getting network interfaces:", err)
 		return
 	}
 
-	in := make(chan arp_scan.ARPEvent)
+	in := make(chan arp_scan2.ARPEvent)
 
 	go func() {
 		for ev := range in {
@@ -86,14 +86,14 @@ func runARPScan(graph *graphing.Graph) {
 			node.IP = ev.IP
 			node.Protocols["arp"] = true
 			netNode := graph.GetOrCreateNode("net:" + ev.Network.String())
-			netNode.Type = graphing.NodeNetwork
-			graph.AddEdge(node.ID, netNode.ID, graphing.EdgeMemberOf)
+			netNode.Type = graphing2.NodeNetwork
+			graph.AddEdge(node.ID, netNode.ID, graphing2.EdgeMemberOf)
 		}
 	}()
 
 	for _, iface := range ifaces {
 		fmt.Printf("Starting ARP Scan on interface %s\n", iface.Name)
-		err := arp_scan.Scan(iface, in)
+		err := arp_scan2.Scan(iface, in)
 		if err != nil {
 			fmt.Printf("Error scanning network on interface %s: %v\n", iface.Name, err)
 			continue
@@ -102,7 +102,7 @@ func runARPScan(graph *graphing.Graph) {
 
 }
 
-func runICMPSweep(graph *graphing.Graph) {
+func runICMPSweep(graph *graphing2.Graph) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		fmt.Println("Error getting network interfaces:", err)

@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/MoritzMy/NetMap/internal/proto"
-	arp2 "github.com/MoritzMy/NetMap/internal/proto/arp"
-	eth2 "github.com/MoritzMy/NetMap/internal/proto/ethernet"
-	"github.com/MoritzMy/NetMap/internal/proto/ip"
+	"github.com/MoritzMy/NetMap/backend/internal/proto"
+	"github.com/MoritzMy/NetMap/backend/internal/proto/arp"
+	eth2 "github.com/MoritzMy/NetMap/backend/internal/proto/ethernet"
+	"github.com/MoritzMy/NetMap/backend/internal/proto/ip"
 )
 
 // SendARPRequest constructs and sends an ARP request for the given target IP on the specified interface.
@@ -26,7 +26,7 @@ func SendARPRequest(iface net.Interface, targetIP net.IP, fd int) bool {
 			continue
 		}
 
-		req := arp2.NewARPRequest(iface.HardwareAddr, sourceIPNet.IP, targetIP) // Create ARP request
+		req := arp.NewARPRequest(iface.HardwareAddr, sourceIPNet.IP, targetIP) // Create ARP request
 		b, err := proto.Marshal(&req)
 		if err != nil {
 			log.Println("error occurred while marshalling ARP request:", err)
@@ -61,7 +61,7 @@ func Scan(iface net.Interface, out chan<- ARPEvent) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	ch := arp2.ARPResponseListener(fd, ctx)
+	ch := arp.ARPResponseListener(fd, ctx)
 
 	var count atomic.Int64
 
@@ -79,10 +79,6 @@ func Scan(iface net.Interface, out chan<- ARPEvent) error {
 
 		go func(netw *net.IPNet) {
 			for res := range ch {
-				if eth2.IsVRRPMulticastMAC(res.MAC) {
-					// TODO: Implement Gateway Recognition
-				}
-
 				canonNetw := CanonicalIPNet(netw)
 
 				out <- ARPEvent{
@@ -96,9 +92,6 @@ func Scan(iface net.Interface, out chan<- ARPEvent) error {
 		}(sourceIPNet)
 
 		for _, ip := range ip.ValidIpsInNetwork(sourceIPNet) {
-			if ip.Equal(sourceIPNet.IP) {
-				continue
-			}
 			<-ticker.C        // Throttle
 			sem <- struct{}{} // Acquire semaphore
 			ip := ip          // Capture range variable

@@ -3,7 +3,7 @@ package ip
 import (
 	"fmt"
 
-	"github.com/MoritzMy/NetMap/internal/proto"
+	"github.com/MoritzMy/NetMap/backend/internal/proto"
 )
 
 // IPv4Packet represents an IPv4 Packet with Header and Data sections.

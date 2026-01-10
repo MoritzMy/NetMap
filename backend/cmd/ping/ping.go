@@ -9,9 +9,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/MoritzMy/NetMap/cmd/arp_scan"
-	icmp2 "github.com/MoritzMy/NetMap/internal/proto/icmp"
-	"github.com/MoritzMy/NetMap/internal/proto/ip"
+	"github.com/MoritzMy/NetMap/backend/cmd/arp_scan"
+	"github.com/MoritzMy/NetMap/backend/internal/proto/icmp"
+	"github.com/MoritzMy/NetMap/backend/internal/proto/ip"
 )
 
 // Sweep performs a Ping Sweep over the given List of Network Adresses on the specified network interface.
@@ -49,7 +49,7 @@ func Sweep(iface net.Interface, out chan<- net.IP) error {
 		defer pc.Close()
 
 		go func() {
-			replyChan := icmp2.PingReplyListener(pc, ctx)
+			replyChan := icmp.PingReplyListener(pc, ctx)
 			for reply := range replyChan {
 				if _, loaded := seen.LoadOrStore(reply.String(), true); loaded {
 					continue
@@ -72,7 +72,7 @@ func Sweep(iface net.Interface, out chan<- net.IP) error {
 
 			wg.Go(func() {
 				id := uint16(os.Getpid() & 0xffff)
-				err := icmp2.SendPing(pc, ip, id, 0)
+				err := icmp.SendPing(pc, ip, id, 0)
 
 				if err != nil {
 					fmt.Println(err)
