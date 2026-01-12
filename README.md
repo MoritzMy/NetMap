@@ -9,7 +9,7 @@ NetMap is a network topology exploration tool that uses different Protocol Scans
 
 NetMap only supports IPv4 as of now
 
-- ARP-ScanInterface
+- ARP-Scan
 
   Iterates over all Interfaces and sends an ARP Request for all possible IPs in the Subnet of the Interface IP Adress
   
@@ -23,25 +23,37 @@ NetMap only supports IPv4 as of now
    git clone https://github.com/MoritzMy/NetMap
     ```
    
-2. Navigate to the project directory:
+2. Navigate to the project backend directory:
    ```bash
-   cd NetMap
+   cd NetMap/backend
    ```
    
 3. Build the project:
+
+   3.1 Build the Project as a Script
    ```bash
-   go build -o netmap netmap.go
+   make install && make build-script
+   ```
+
+   3.2 Build the Project as a 
+
+   ```bash
+   make install && make build-service
    ```
    
-4. Run the tool with appropriate permissions: requires `sudo` for raw socket access:
+5. Run the tool with appropriate permissions: requires `sudo` for raw socket access:
    ```bash
    sudo ./netmap <flags>
     ```
 ## Flags
 
+####Script Flags:
+
 - `-arp-scan` : Perform an ARP scan on all interfaces
 - `-ping-sweep` : Perform a ping sweep on all interfaces
-- `-dot-file <output-file-name>` : Name of the exported .dot file for graphviz
+- `-json-file <output-file-name>`:
+Name for a .json file in which the Node Network will be saved
+- `-dot-file <output-file-name>` : Name for a .dot file in which the Node Network will be saved, to be represented by Graphviz
    
 ## Project Status
 
@@ -55,11 +67,10 @@ Features, APIs, and behavior may change as the project evolves.
 NetMap infers topology based on active probing and therefore has inherent limitations:
 
 - Firewalls and routers may block or rate-limit ICMP traffic
-- Not all devices respond to traceroute probes
 - NAT, VLANs, and Layer 2 topology are not visible
 - Routing paths may be asymmetric or change over time
 
-As a result, the generated topology represents a **best-effort approximation**, not a definitive or complete network map.
+As a result, the generated topology represents a **best-effort approximation**.
 
 
 ## Intended Use
