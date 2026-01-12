@@ -3,9 +3,9 @@ package api
 import (
 	"net/http"
 
-	"github.com/MoritzMy/NetMap/backend/cmd/arp_scan"
-	"github.com/MoritzMy/NetMap/backend/cmd/ping"
+	"github.com/MoritzMy/NetMap/backend/internal/arp_scan"
 	"github.com/MoritzMy/NetMap/backend/internal/graphing"
+	"github.com/MoritzMy/NetMap/backend/internal/ping"
 )
 
 // GetGraph is an HTTP handler that returns the graph as JSON.

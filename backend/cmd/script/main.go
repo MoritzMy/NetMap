@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/MoritzMy/NetMap/backend/cmd/arp_scan"
-	"github.com/MoritzMy/NetMap/backend/cmd/ping"
+	"github.com/MoritzMy/NetMap/backend/internal/arp_scan"
 	"github.com/MoritzMy/NetMap/backend/internal/graphing"
+	"github.com/MoritzMy/NetMap/backend/internal/ping"
 )
 
 func main() {
