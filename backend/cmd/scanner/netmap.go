@@ -44,11 +44,14 @@ func main() {
 
 		outPath := filepath.Join(wd, *json_file)
 
-		err = os.WriteFile(outPath, json, 0644)
-
+		file, err := os.Create(outPath)
 		if err != nil {
-			fmt.Printf("could not write to file: %s", err)
+			fmt.Printf("could not create file: %s", err)
 		}
+		defer file.Close()
+
+		file.Chmod(0644)
+		file.Write(json)
 	}
 
 	if *dot_file != "" {
