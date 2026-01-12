@@ -15,6 +15,7 @@ type Graph struct {
 	mu    sync.Mutex
 }
 
+// NewGraph creates and returns a new empty Graph.
 func NewGraph() *Graph {
 	return &Graph{
 		Edges: make([]*Edge, 0),
@@ -22,6 +23,7 @@ func NewGraph() *Graph {
 	}
 }
 
+// GetOrCreateNode retrieves a node by its ID or creates it if it does not exist.
 func (g *Graph) GetOrCreateNode(id string) *Node {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -36,6 +38,8 @@ func (g *Graph) GetOrCreateNode(id string) *Node {
 	return newNode
 }
 
+// AddEdge adds an edge of the specified type between two nodes identified by their IDs.
+// If either node does not exist, the function does nothing.
 func (g *Graph) AddEdge(fromID, toID string, edgeType EdgeType) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -55,6 +59,8 @@ func (g *Graph) AddEdge(fromID, toID string, edgeType EdgeType) {
 	g.Edges = append(g.Edges, edge)
 }
 
+// AddProtocol adds a protocol to the node with the given ID.
+// If the node does not exist, the function does nothing.
 func (g *Graph) AddProtocol(id, proto string) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -64,6 +70,8 @@ func (g *Graph) AddProtocol(id, proto string) {
 	}
 }
 
+// LinkNetworkToGateway creates EdgeRouteVia edges between Networks and Gateways
+// based on existing EdgeMemberOf relationships.
 func (g *Graph) LinkNetworkToGateway() {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -96,6 +104,9 @@ func (g *Graph) String() string {
 	return result
 }
 
+// ToDOT exports the graph to DOT format for visualization with Graphviz. It
+// represents nodes with different shapes based on their type and labels edges
+// with their types.
 func (g *Graph) ToDOT() string {
 	var b strings.Builder
 
