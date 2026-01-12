@@ -71,19 +71,9 @@ func (g *Graph) LinkNetworkToGateway() {
 	for _, edge := range g.Edges {
 		if edge.Type == EdgeMemberOf {
 			if edge.From.Type == NodeNetwork && edge.To.Type == NodeGateway {
-				routeEdge := &Edge{
-					From: edge.From,
-					To:   edge.To,
-					Type: EdgeRouteVia,
-				}
-				g.Edges = append(g.Edges, routeEdge)
+				g.AddEdge(edge.From.ID, edge.To.ID, EdgeRouteVia)
 			} else if edge.To.Type == NodeNetwork && edge.From.Type == NodeGateway {
-				routeEdge := &Edge{
-					From: edge.To,
-					To:   edge.From,
-					Type: EdgeRouteVia,
-				}
-				g.Edges = append(g.Edges, routeEdge)
+				g.AddEdge(edge.From.ID, edge.To.ID, EdgeRouteVia)
 			}
 		}
 	}
