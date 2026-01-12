@@ -1,14 +1,31 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/MoritzMy/NetMap/backend/internal/api"
 	"github.com/MoritzMy/NetMap/backend/internal/graphing"
 )
 
+const (
+	defaultPort       = 8080
+	maxPortsInNetwork = 65535
+)
+
 func main() {
+
+	port := flag.Uint("p", defaultPort, "Sets the Port for the HTTP Server to listen on")
+
+	flag.Parse()
+
+	if *port > maxPortsInNetwork {
+		*port = defaultPort // reset to default value
+	}
+
+	addr := ":" + strconv.Itoa(int(*port))
 
 	g := graphing.NewGraph()
 
@@ -21,5 +38,5 @@ func main() {
 	http.HandleFunc("/api/arp-scan", api.RunARPScanHandler(g))
 
 	log.Println("Listening on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal("service crashed with: ", http.ListenAndServe(addr, nil))
 }
