@@ -35,7 +35,7 @@ NetMap only supports IPv4 as of now
    make install && make build-script
    ```
 
-   3.2 Build the Project as a 
+   3.2 Build the Project as a HTTP Service
 
    ```bash
    make install && make build-service
@@ -47,13 +47,16 @@ NetMap only supports IPv4 as of now
     ```
 ## Flags
 
-####Script Flags:
+#### Script Flags:
 
 - `-arp-scan` : Perform an ARP scan on all interfaces
 - `-ping-sweep` : Perform a ping sweep on all interfaces
 - `-json-file <output-file-name>`:
 Name for a .json file in which the Node Network will be saved
 - `-dot-file <output-file-name>` : Name for a .dot file in which the Node Network will be saved, to be represented by Graphviz
+
+#### Service Flags
+- `-p <Port>`
    
 ## Project Status
 
