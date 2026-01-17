@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
 const NODE_TYPES = {
@@ -45,6 +53,59 @@ const formatProtocols = (protocols) => {
     .join(', ');
 };
 
+const GraphView = memo(function GraphView({ graphData, dimensions, nodeRelSize, graphRef }) {
+  const nodeRadius = Math.max(4, nodeRelSize);
+
+  return (
+    <ForceGraph2D
+      ref={graphRef}
+      graphData={graphData}
+      nodeId="id"
+      linkSource="source"
+      linkTarget="target"
+      width={dimensions.width || 800}
+      height={dimensions.height || 600}
+      backgroundColor="#0b0f1c"
+      nodeRelSize={nodeRelSize}
+      linkDirectionalParticles={2}
+      linkDirectionalParticleWidth={2}
+      linkDirectionalParticleSpeed={0.004}
+      linkColor={(link) => linkColorFor(link)}
+      linkWidth={(link) => (link.type === 'routes-via' ? 2 : 1.25)}
+      nodeCanvasObject={(node, ctx, globalScale) => {
+        const label = node.ip || node.id;
+        const fontSize = 12 / globalScale;
+        const radius = nodeRadius / globalScale;
+
+        ctx.fillStyle = NODE_COLORS[node.type] || NODE_COLORS[NODE_TYPES.UNKNOWN];
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
+        ctx.fill();
+
+        ctx.font = `${fontSize}px Inter, system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fillText(label, node.x, node.y + radius + 2);
+      }}
+      nodePointerAreaPaint={(node, color, ctx, globalScale) => {
+        const radius = (nodeRadius + 4) / globalScale;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
+        ctx.fill();
+      }}
+      nodeLabel={(node) => {
+        const vendor = node.vendor || 'Unknown vendor';
+        const ip = node.ip || node.id;
+        const protocols = formatProtocols(node.protocols);
+        const typeLabel = NODE_LABELS[node.type] || 'Unknown';
+        return `${ip}\n${vendor}\n${typeLabel}\nProtocols: ${protocols}`;
+      }}
+    />
+  );
+});
+
 function App() {
   const [graphData, setGraphData] = useState(DEFAULT_GRAPH);
   const [status, setStatus] = useState('idle');
@@ -53,6 +114,7 @@ function App() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const graphRef = useRef(null);
   const graphContainerRef = useRef(null);
+  const nodeIdSetRef = useRef(new Set());
 
   const fetchGraph = useCallback(async () => {
     setStatus('loading');
@@ -62,7 +124,16 @@ function App() {
         throw new Error(`HTTP ${response.status}`);
       }
       const data = await response.json();
-      setGraphData(data ?? DEFAULT_GRAPH);
+      const nextGraph = data ?? DEFAULT_GRAPH;
+      const nextNodes = nextGraph.nodes ?? [];
+      const nextIds = new Set(nextNodes.map((node) => node.id));
+      const existingIds = nodeIdSetRef.current;
+      const hasNewNode = Array.from(nextIds).some((id) => !existingIds.has(id));
+
+      if (hasNewNode || existingIds.size === 0) {
+        nodeIdSetRef.current = nextIds;
+        setGraphData(nextGraph);
+      }
       setLastUpdated(new Date());
       setStatus('success');
     } catch (error) {
@@ -217,45 +288,11 @@ function App() {
         </aside>
 
         <main className="graph-panel" ref={graphContainerRef}>
-          <ForceGraph2D
-            ref={graphRef}
+          <GraphView
             graphData={graphData}
-            width={dimensions.width || 800}
-            height={dimensions.height || 600}
-            backgroundColor="#0b0f1c"
+            dimensions={dimensions}
             nodeRelSize={nodeRelSize}
-            linkDirectionalParticles={2}
-            linkDirectionalParticleWidth={2}
-            linkDirectionalParticleSpeed={0.004}
-            linkColor={(link) => linkColorFor(link)}
-            linkWidth={(link) => (link.type === 'routes-via' ? 2 : 1)}
-            nodeCanvasObject={(node, ctx, globalScale) => {
-              const label = node.ip || node.id;
-              const fontSize = 12 / globalScale;
-              ctx.fillStyle = NODE_COLORS[node.type] || NODE_COLORS[NODE_TYPES.UNKNOWN];
-              ctx.beginPath();
-              ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI, false);
-              ctx.fill();
-
-              ctx.font = `${fontSize}px Inter, system-ui, sans-serif`;
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'top';
-              ctx.fillStyle = 'rgba(255,255,255,0.85)';
-              ctx.fillText(label, node.x, node.y + 7);
-            }}
-            nodePointerAreaPaint={(node, color, ctx) => {
-              ctx.fillStyle = color;
-              ctx.beginPath();
-              ctx.arc(node.x, node.y, 10, 0, 2 * Math.PI, false);
-              ctx.fill();
-            }}
-            nodeLabel={(node) => {
-              const vendor = node.vendor || 'Unknown vendor';
-              const ip = node.ip || node.id;
-              const protocols = formatProtocols(node.protocols);
-              const typeLabel = NODE_LABELS[node.type] || 'Unknown';
-              return `${ip}\n${vendor}\n${typeLabel}\nProtocols: ${protocols}`;
-            }}
+            graphRef={graphRef}
           />
         </main>
       </div>
